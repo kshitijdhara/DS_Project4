@@ -101,8 +101,11 @@ public class jokeServlet extends HttpServlet {
       case "/dashboard":
         List<Document> allLogs = getAllLogs();
         long userCount = getUsersCount();
+        Map<String, Integer> urlPatternCount = countUrlPatterns();
+        System.out.println(urlPatternCount);
         request.setAttribute("allLogs", allLogs);
         request.setAttribute("allUsers", userCount);
+        request.setAttribute("urlpatternCount", urlPatternCount);
         RequestDispatcher dispatcher = request.getRequestDispatcher("/dashboard.jsp");
         dispatcher.forward(request, response);
         break;
@@ -257,4 +260,31 @@ public class jokeServlet extends HttpServlet {
       return -1; // or throw exception, handle error according to your application's logic
     }
   }
+
+  private Map<String, Integer> countUrlPatterns() {
+    MongoClient mongoClient = MongoClients.create(connectionString);
+    try {
+      MongoDatabase database = mongoClient.getDatabase("distributed_systems");
+      MongoCollection<Document> logCollection = database.getCollection("logs");
+
+      // Group by URL pattern and count occurrences using aggregation
+      List<Document> pipeline = Arrays.asList(
+              new Document("$group", new Document("_id", "$urlPattern").append("count", new Document("$sum", 1)))
+      );
+
+      AggregateIterable<Document> result = logCollection.aggregate(pipeline);
+
+      // Map to store URL pattern and count
+      Map<String, Integer> urlPatternCounts = new HashMap<>();
+      for (Document doc : result) {
+        String urlPattern = doc.getString("_id");
+        int count = doc.getInteger("count");
+        urlPatternCounts.put(urlPattern, count);
+      }
+      return urlPatternCounts;
+    } finally {
+      mongoClient.close();
+    }
+  }
+
 }

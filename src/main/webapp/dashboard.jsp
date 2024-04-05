@@ -1,6 +1,7 @@
 <%@ page import="org.bson.Document" %>
 <%@ page import="java.util.List" %>
 <%@ page import="java.util.Map" %>
+<%@ page import="java.util.Iterator" %>
 
 <!DOCTYPE html>
 <html>
@@ -30,6 +31,32 @@
                 }
             %>
         </tr>
+        </tbody>
+    </table>
+    <h3>Category Count</h3>
+    <table class="table table-striped">
+        <thead>
+        <tr>
+            <th>Category</th>
+            <th>Count</th>
+        </tr>
+        </thead>
+        <tbody>
+        <%
+            Map<String, Integer> categoryCount = (Map<String, Integer>) request.getAttribute("urlpatternCount");
+            if (categoryCount != null) {
+                Iterator<Map.Entry<String, Integer>> iterator = categoryCount.entrySet().iterator();
+                while (iterator.hasNext()) {
+                    Map.Entry<String, Integer> entry = iterator.next();
+        %>
+        <tr>
+            <td><%= entry.getKey() %></td>
+            <td><%= entry.getValue() %></td>
+        </tr>
+        <%
+                }
+            }
+        %>
         </tbody>
     </table>
     <h2>Logs</h2>
