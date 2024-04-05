@@ -31,6 +31,23 @@
                 }
             %>
         </tr>
+        <tr>
+        <tr>
+            <%
+                Long jokesCount = (Long) request.getAttribute("jokesCount");
+                if (jokesCount != null) {
+            %>
+            <td>Jokes count</td>
+            <td><%= jokesCount %></td>
+            <%
+            } else {
+            %>
+            <td>Error: jokes count data not available</td>
+            <%
+                }
+            %>
+        </tr>
+        </tr>
         </tbody>
     </table>
     <h3>Category Count</h3>

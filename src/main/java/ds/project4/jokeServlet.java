@@ -102,10 +102,12 @@ public class jokeServlet extends HttpServlet {
         List<Document> allLogs = getAllLogs();
         long userCount = getUsersCount();
         Map<String, Integer> urlPatternCount = countUrlPatterns();
+        long jokesCount = getJokesCount();
         System.out.println(urlPatternCount);
         request.setAttribute("allLogs", allLogs);
         request.setAttribute("allUsers", userCount);
         request.setAttribute("urlpatternCount", urlPatternCount);
+        request.setAttribute("jokesCount", jokesCount);
         RequestDispatcher dispatcher = request.getRequestDispatcher("/dashboard.jsp");
         dispatcher.forward(request, response);
         break;
@@ -286,5 +288,21 @@ public class jokeServlet extends HttpServlet {
       mongoClient.close();
     }
   }
+  private long getJokesCount() {
+    try (MongoClient mongoClient = MongoClients.create(connectionString)) {
+      MongoDatabase database = mongoClient.getDatabase("distributed_systems");
+      MongoCollection<Document> collection = database.getCollection("jokes");
+
+      // Get the count of documents in the collection
+      long count = collection.countDocuments();
+
+      logger.log(Level.INFO, "Total number of jokes: {0}", count);
+      return count;
+    } catch (Exception e) {
+      logger.log(Level.SEVERE, "Error occurred while getting jokes count", e);
+      return -1; // or throw exception, handle error according to your application's logic
+    }
+  }
+
 
 }
