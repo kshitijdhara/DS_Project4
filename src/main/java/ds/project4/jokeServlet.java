@@ -30,6 +30,7 @@ public class jokeServlet extends HttpServlet {
 
   static String username;
   static String password;
+  Gson gson = new Gson();
 
   public void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
     response.setContentType("application/json");
@@ -45,11 +46,13 @@ public class jokeServlet extends HttpServlet {
       case "/random-joke":
         jokeJson = getJoke(BASE_URL, username);
         out.println(jokeJson);
+        response.getWriter().write(jokeJson);
         logRequest(request,jokeJson,urlPattern,200);
         break;
       case "/joke-by-category":
         String category = request.getParameter("category");
         jokeJson = getJoke(BASE_URL + "?category=" + category, username);
+        response.getWriter().write(jokeJson);
         logRequest(request,jokeJson,urlPattern,200);
         out.println(jokeJson);
         break;
@@ -57,46 +60,38 @@ public class jokeServlet extends HttpServlet {
         username = request.getParameter("username");
         password = request.getParameter("password");
         String createdUsername = create_user(username, password);
+
+        CreateUserResponse createUserResponse = new CreateUserResponse();
         if (createdUsername.equals("Error: Username already in use")) {
-          // Redirect the user back to the index.jsp
-          response.sendRedirect(request.getContextPath() + "/index.jsp");
-//          logRequest(request,urlPattern,200);
+          createUserResponse.setError("Username already in use");
+          response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
         } else {
-          // Set the username in the request and forward to the home.jsp
-          request.setAttribute("username", createdUsername);
-          RequestDispatcher dispatcher = request.getRequestDispatcher("/home.jsp");
-          dispatcher.forward(request, response);
+          createUserResponse.setUsername(createdUsername);
         }
+        response.getWriter().write(gson.toJson(createUserResponse));
         break;
       case "/login":
         username = request.getParameter("username");
         password = request.getParameter("password");
-        Document jokeDocument = new Document("message", "")
-                .append("username", username);
         String loggedInUsername = login_user(username, password);
+        Gson gson = new Gson();
+        LoginResponse loginResponse = new LoginResponse();
         if (loggedInUsername != null) {
-          jokeDocument.replace("message", "login successful");
-          logRequest(request,jokeDocument.toJson(),urlPattern,200);
-          request.setAttribute("username", loggedInUsername);
-          RequestDispatcher dispatcher2 = request.getRequestDispatcher("/home.jsp");
-          dispatcher2.forward(request, response);
-
-          return;
+          loginResponse.setUsername(loggedInUsername);
         } else {
-          // Handle login failure
-          jokeDocument.replace("message", "login successful");
-          logRequest(request,jokeDocument.toJson(),urlPattern,401);
-          response.sendRedirect(request.getContextPath() + "/index.jsp");
-          return;
+          loginResponse.setError("Invalid username or password");
+          response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
         }
+        response.getWriter().write(gson.toJson(loginResponse));
+        break;
       case "/user-jokes":
         List<Document> userJokes = getUserJokes(username);
         // Convert the list of documents to a JSON string and write it to the response
         String userJokesJson = userJokes.stream()
                 .map(Document::toJson)
                 .collect(Collectors.joining(",", "[", "]"));
+        response.getWriter().write(userJokesJson.toString());
         logRequest(request,userJokesJson,urlPattern,200);
-        out.println(userJokesJson);
         break;
       case "/dashboard":
         List<Document> allLogs = getAllLogs();

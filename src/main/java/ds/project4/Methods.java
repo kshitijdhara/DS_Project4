@@ -44,3 +44,43 @@ public class Methods {
         System.out.println("Decoded message: " + decodedMessage);
     }
 }
+class CreateUserResponse {
+    private String error;
+    private String username;
+
+    public String getError() {
+        return error;
+    }
+
+    public void setError(String error) {
+        this.error = error;
+    }
+
+    public String getUsername() {
+        return username;
+    }
+
+    public void setUsername(String username) {
+        this.username = username;
+    }
+}
+class LoginResponse {
+    private String error;
+    private String username;
+
+    public String getError() {
+        return error;
+    }
+
+    public void setError(String error) {
+        this.error = error;
+    }
+
+    public String getUsername() {
+        return username;
+    }
+
+    public void setUsername(String username) {
+        this.username = username;
+    }
+}
