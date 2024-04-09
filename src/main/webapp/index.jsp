@@ -1,10 +1,5 @@
-<%--
-  Created by IntelliJ IDEA.
-  User: kshitijdhara
-  Date: 02/04/24
-  Time: 11:53 am
-  To change this template use File | Settings | File Templates.
---%>
+<%--// Andrew ID - kdhara--%>
+<%--// Name - Kshtij Dhara--%>
 <!DOCTYPE html>
 <html>
 <head>
